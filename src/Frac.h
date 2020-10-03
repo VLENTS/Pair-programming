@@ -5,7 +5,7 @@ typedef long long LL;
 
 LL gcd(LL a, LL b);
 
-// 暂不考虑符号问题
+// 暂不考虑符号与初始化分母为0的问题
 struct Frac {
 	LL up, down;
 	Frac();

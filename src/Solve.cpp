@@ -105,7 +105,7 @@ int demical(int x) {
 	}
 	return max(1, cnt);
 }
-
+//输出乘除号为utf-8编码
 void run_gene(int t, int m) {
 	used.clear();
 	ofstream ans, out;
@@ -145,7 +145,13 @@ void run_gene(int t, int m) {
 
 			while (brack[j][1]--) out << ")";
 
-			if (j < n) out << " " << (char)_sign[j] << " ";
+			if (j < n) {
+				out << " ";
+				if (_sign[j] == '*') out << (char)0xC3 << (char)0x97;
+				else if (_sign[j] == '/') out << (char)0xC3 << (char)0xB7;
+				else out << (char)_sign[j];
+				out << " ";
+			}
 			else {
 				out << " = ";
 				is = false;
@@ -164,4 +170,184 @@ void run_gene(int t, int m) {
 		}
 	}
 	ans.close(); out.close();
+}
+//假设不存在计算过程出现负数和/0的情况
+void test(int s) {
+	int m = s;
+	while (!brack[m][1]) {
+		if (brack[m][0]) {
+			brack[m][0]--; test(m);
+		}
+		else m = nex[m];
+	}
+	int n = 0;
+	for (int i = s; i != m; i = nex[i]) n++;
+	int temp;
+
+	temp = s;
+	for (int i = 0; i < n; i++, temp = nex[temp]) {
+		while (i < n && (sign[temp] == '*' || sign[temp] == '/')) {
+			if (sign[temp] == '*')
+				num[temp] = num[temp] * num[nex[temp]];
+			if (sign[temp] == '/')
+				num[temp] = num[temp] / num[nex[temp]];
+
+			sign[temp] = sign[nex[temp]];
+			nex[temp] = nex[nex[temp]];
+			n--;
+		}
+	}
+
+	temp = s;
+	for (int i = 0; i < n; i++, temp = nex[temp]) {
+		while (i < n && (sign[temp] == '+' || sign[temp] == '-')) {
+			if (sign[temp] == '+')
+				num[temp] = num[temp] + num[nex[temp]];
+			if (sign[temp] == '-')
+				num[temp] = num[temp] - num[nex[temp]];
+				
+			sign[temp] = sign[nex[temp]];
+			nex[temp] = nex[nex[temp]];
+			n--;
+		}
+	}
+	brack[s][1] = brack[m][1] - 1;
+	brack[m][1] = 0;
+}
+
+vector<int> correct, wrong;
+
+//假设输入标准 输入乘除号可以为utf-8编码也可以为* /
+void run_test(string adr_exe, string adr_ans) {
+	ifstream exe, ans; ofstream out;
+	exe.open(adr_exe);
+	ans.open(adr_ans);
+	out.open(".\\Grade.txt");
+	string temp;
+	while (getline(exe,temp)) {
+		int k = 0, s = 0, cnt = 1;
+		while ('0' <= temp[k] && temp[k] <= '9') {
+			s = s * 10 + temp[k] - '0';
+			k++;
+		}
+		while (true) {
+			while ((temp[k] < '0' || temp[k] > '9') && temp[k] != '(') k++;
+			while (temp[k] == '(') {
+				brack[cnt][0]++;
+				k++;
+			}
+			while (temp[k] < '0' || temp[k] > '9') k++;
+			int up = 0, down = 0;
+			while ('0' <= temp[k] && temp[k] <= '9') {
+				up = up * 10 + temp[k] - '0';
+				k++;
+			}
+			if (temp[k] == '\'') {
+				k++;
+				int t = up; up = 0;
+				while ('0' <= temp[k] && temp[k] <= '9') {
+					up = up * 10 + temp[k] - '0';
+					k++;
+				}
+					
+				k++;
+				while ('0' <= temp[k] && temp[k] <= '9') {
+					down = down * 10 + temp[k] - '0';
+					k++;
+				}
+					
+				up += down * t;
+			}
+			else if (temp[k] == '/') {
+				k++;
+				while ('0' <= temp[k] && temp[k] <= '9') {
+					down = down * 10 + temp[k] - '0';
+					k++;
+				}
+					
+			}
+			else down = 1;
+			num[cnt] = Frac(up, down);
+			while (temp[k] == ')') {
+				brack[cnt][1]++;
+				k++;
+			}
+			while (temp[k] != '=' && temp[k] != '+' && temp[k] != '-'
+				&& temp[k] != '*' && temp[k] != '/' && temp[k] != (char)0xC3) {
+				k++;
+			}
+			if (temp[k] == '=') break;
+			else {
+				if (temp[k] == (char)0xC3) {
+					if (temp[++k] == (char)0x97) sign[cnt++] = '*';
+					else sign[cnt++] = '/';
+				}
+				else sign[cnt++] = temp[k];
+			}
+		}
+		brack[cnt][1]++;
+		for (int i = 1; i < cnt; i++) nex[i] = i + 1;
+		nex[cnt] = 0;
+		test(1);
+		getline(ans, temp);
+		k = 0;
+		while (temp[k] != '.') k++;
+		while (temp[k] < '0' || temp[k] > '9') k++;
+		int up = 0, down = 0;
+		while ('0' <= temp[k] && temp[k] <= '9') {
+			up = up * 10 + temp[k] - '0';
+			k++;
+		}
+		if (temp[k] == '\'') {
+			k++;
+
+			int t = up; up = 0;
+			while ('0' <= temp[k] && temp[k] <= '9') {
+				up = up * 10 + temp[k] - '0';
+				k++;
+			}
+				
+			k++;
+			while ('0' <= temp[k] && temp[k] <= '9') {
+				down = down * 10 + temp[k] - '0';
+				k++;
+			}
+				
+			up += down * t;
+		}
+		else if (temp[k] == '/') {
+			k++;
+			while ('0' <= temp[k] && temp[k] <= '9') {
+				down = down * 10 + temp[k] - '0';
+				k++;
+			}
+				
+		}
+		else down = 1;
+		if (!(num[1] == Frac(up, down)))
+			wrong.push_back(s);
+		else correct.push_back(s);
+	}
+
+	out << "Correct: " << correct.size() << " (";
+	if (correct.size()) {
+		out << correct[0];
+		for (int i = 1; i < correct.size(); i++) {
+			out << ", " << correct[i];
+		}
+	}
+	out << ")\n";
+
+	out << "Wrong: " << wrong.size() << " (";
+	if (wrong.size()) {
+		out << wrong[0];
+		for (int i = 1; i < wrong.size(); i++) {
+			out << ", " << wrong[i];
+		}
+	}
+	out << ")\n";
+
+	exe.close();
+	ans.close();
+	out.close();
 }
