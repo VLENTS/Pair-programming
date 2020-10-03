@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef SOLVE_H
+#define SOLVE_H
 
 #include <ctime>
 #include <fstream>
@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <unordered_set>
 
-#endif // !MAIN_H
+void run_gene(int t, int m);
 
+#endif // !SOLVE_H
 
