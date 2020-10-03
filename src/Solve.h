@@ -2,6 +2,7 @@
 #define SOLVE_H
 
 #include <ctime>
+#include <iomanip>
 #include <fstream>
 #include <iostream>
 #include <algorithm>

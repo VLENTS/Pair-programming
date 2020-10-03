@@ -96,6 +96,16 @@ bool gene(int n, int m) {
 	return false;
 }
 
+//计算整数有多少位 0算一位
+int demical(int x) {
+	int cnt = 0;
+	while (x) {
+		x /= 10;
+		cnt++;
+	}
+	return max(1, cnt);
+}
+
 void run_gene(int t, int m) {
 	used.clear();
 	ofstream ans, out;
@@ -108,8 +118,16 @@ void run_gene(int t, int m) {
 			n = 3;
 		}
 
-		out << i << ". ";
-		ans << i << ". ";
+		out << i << ".";
+		ans << i << ".";
+
+		int cnt = demical(i) + 1;
+		while (cnt < 6) {
+			out << ' ';
+			ans << ' ';
+			cnt++;
+		}
+
 		for (int j = 1; j <= n; j++) {
 			while (brack[j][0]--) out << "(";
 			bool is;
@@ -129,6 +147,7 @@ void run_gene(int t, int m) {
 
 			if (j < n) out << " " << (char)_sign[j] << " ";
 			else {
+				out << " = ";
 				is = false;
 				if (num[1].up >= num[1].down) {
 					ans << num[1].up / num[1].down; is = true;
