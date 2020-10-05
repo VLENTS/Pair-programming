@@ -42,6 +42,14 @@ bool solve(int s, int n) {
 			n--;
 		}
 	}
+	//
+	temp = s;
+	for (int i = 0; i < n; i++, temp = nex[temp]) 
+		if (sign[temp] == '-') {
+			Frac x = num[temp] - num[nex[temp]];
+			if (x.up < 0 || x.down < 0) return false;
+		}
+	//
 	temp = s;
 	for (int i = 0; i < n; i++, temp = nex[temp]) {
 		while (i < n && (sign[temp] == '+' || sign[temp] == '-')) {
@@ -293,7 +301,7 @@ void run_test(string adr_exe, string adr_ans) {
 		k = 0;
 		while (temp[k] != '.') k++;
 		while (temp[k] < '0' || temp[k] > '9') k++;
-		int up = 0, down = 0;
+		LL up = 0, down = 0;
 		while ('0' <= temp[k] && temp[k] <= '9') {
 			up = up * 10 + temp[k] - '0';
 			k++;
@@ -301,7 +309,7 @@ void run_test(string adr_exe, string adr_ans) {
 		if (temp[k] == '\'') {
 			k++;
 
-			int t = up; up = 0;
+			LL t = up; up = 0;
 			while ('0' <= temp[k] && temp[k] <= '9') {
 				up = up * 10 + temp[k] - '0';
 				k++;
