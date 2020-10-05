@@ -6,50 +6,49 @@
 #include<string>
 #include<stack>
 #include<sstream>
-#include<stdlib.h>
 #include<vector>
+  
+typedef long long LL;
 
-
-
-int gcd(int a, int b);
+LL gcd(LL a, LL b);
 struct Node {
-	int up, down;
+	LL up, down;
 	//无参构造 用于创建数组
 	Node() {
 		up = down = 0;
 	}
 	//含参构造 自动约分
-	Node(int x, int y) {
-		int g = gcd(x, y);
+	Node(LL x, LL y) {
+		LL g = gcd(x, y);
 		up = x / g; 
 		down = y / g;
 	}
 	//分数加法
 	Node operator + (const Node& x) const {
-		int _up = up * x.down + x.up * down;
-		int _down = down * x.down;
-		int g = gcd(_up, _down);
+		LL _up = up * x.down + x.up * down;
+		LL _down = down * x.down;
+		LL g = gcd(_up, _down);
 		return Node( _up / g,_down / g );
 	}
 	//分数减法
 	Node operator - (const Node& x) const {
-		int _up = up * x.down - x.up * down;
-		int _down = down * x.down;
-		int g = gcd(_up, _down);
+		LL _up = up * x.down - x.up * down;
+		LL _down = down * x.down;
+		LL g = gcd(_up, _down);
 		return Node(_up / g,_down / g );
 	}
 	//分数乘法
 	Node operator * (const Node& x) const {
-		int _up = up * x.up;
-		int _down = down * x.down;
-		int g = gcd(_up, _down);
+		LL _up = up * x.up;
+		LL _down = down * x.down;
+		LL g = gcd(_up, _down);
 		return Node(_up / g,_down / g );
 	}
 	//分数除法
 	Node operator / (const Node& x) const {
-		int _up = up * x.down;
-		int _down = down * x.up;
-		int g = gcd(_up, _down);
+		LL _up = up * x.down;
+		LL _down = down * x.up;
+		LL g = gcd(_up, _down);
 		return Node( _up / g,_down / g );
 	}
 };

@@ -2,10 +2,10 @@
 
 using namespace std;
 
-const int Width = 6;
+const int Width = 10;
 
 
-int gcd(int a, int b) {
+LL gcd(LL a, LL b) {
 	return b ? gcd(b, a % b) : a;
 }
 
@@ -14,12 +14,14 @@ bool is_operator(std::string op) {
 }
 
 int get_priority(std::string op) {
-	if (op == "+" || op == "-")
+	if (op == "+")
 		return 1;
-	if (op == "*")
+	else if (op == "-")
 		return 2;
-	if (op == "/")
-		return 3;   //当除法和乘法同时出现时，为保证结果正确，应该先除法后乘法，但是乘法可以包容。
+	else if (op == "*")
+		return 3;
+	else if (op == "/")
+		return 4;   //当除法和乘法同时出现时，为保证结果正确，应该先除法后乘法，但是乘法可以包容。
 	else return 0;
 }
 
@@ -27,7 +29,7 @@ int get_priority(std::string op) {
 std::stack<string> transfrom(std::string input) {
 	std::stack<string> converted;
 	std::stack<string> op;
-	size_t i = 0;
+	int i = 0;
 	std::string digit_node = "";
 
 	//cout << "///transform: ///" << endl;
@@ -37,6 +39,12 @@ std::stack<string> transfrom(std::string input) {
 		char c = input[i];
 		std::string read_char = "";
 		read_char += c;
+
+		//扩展识别 ×和÷
+		if (input[i] == (char)0xC3) {
+			if (input[++i] == (char)0x97) read_char = "*";
+			else read_char = "/";
+		}
 		if (is_operator(read_char)) {  //is_operator()用于检查符号是否为 '+', '-', '*', '/'
 			if (digit_node != "") { //每次判别有符号要入栈时，都把之前所积累的运算数压入栈。
 				converted.push(digit_node);
@@ -56,8 +64,23 @@ std::stack<string> transfrom(std::string input) {
 					}
 					op.pop();
 				}
-				else if (get_priority(read_char) >= get_priority(op.top())) //比较优先级，优先级：'*','/' > '+','-' > ')','('
+				else if (get_priority(read_char) > get_priority(op.top())) //比较优先级，优先级：'*','/' > '+','-' > ')','('
 					op.push(read_char);
+				else if(get_priority(read_char) == get_priority(op.top())){
+					if (read_char == "-") {
+						converted.push(op.top());
+						op.pop();
+						op.push(read_char);
+					}
+					else if (read_char == "/") {
+						converted.push(op.top());
+						op.pop();
+						op.push(read_char);
+					}
+					else{
+						op.push(read_char);
+					}
+				}
 				else {
 					converted.push(op.top());
 					op.pop();
@@ -68,7 +91,7 @@ std::stack<string> transfrom(std::string input) {
 		}
 		else { //若读入符号是数字
 			int j = i;
-			while (input[j]!=')'&&input[j] != ' '&&j<input.length()) { //input[j]!=' '--针对读取分数截止是后一个符号是空，
+			while (input[j]!=')'&&input[j] != ' '&&j<input.length()&&input[j]!='=') { //input[j]!=' '--针对读取分数截止是后一个符号是空，
 				digit_node += input[j];				 //input[j]!='\0' --针对读取分数时最后一个分数，此时截止情况可能不是空，是'\0'。
 				j++;
 			}
@@ -113,6 +136,9 @@ string getRidOf(string str) {
 		i++;
 	}
 	i++;
+	while (str[i] == ' ') {
+		i++;
+	}
 	std::string _str="";
 	for (; str[i] != '\0'; i++) {
 		_str += str[i];
@@ -122,7 +148,7 @@ string getRidOf(string str) {
 
 //将字符串转换成Node的类型，方便后续运算，返回值类型Node。
 Node transfer(std::string val) {
-	int up = 0, down = 0,A=0;
+	LL up = 0, down = 0,A=0;
 	int flag1 = -1, flag2 = -1; //分别用于记下 ' 和 / 的位置
 	int i = 0;
 	std::string label="000"; //我的分数情形有三种：A'B/C , B/C , C label三位值就代表着该位是否存在。
@@ -178,6 +204,25 @@ Node transfer(std::string val) {
 	}
 }
 
+//将LL类型转换成string类型
+string llTostr(LL num) {
+	int x;
+	string s1 = "", s2 = "";
+	if (num == 0) {
+		s2 += '0';
+		return s2;
+	}
+	while (num) {
+		x = num % 10;
+		num /= 10;
+		s1 += (x + '0');
+	}
+	for (int i = s1.length(); i != 0; i--) {
+		s2 += s1[i-1];
+	}
+	return s2;
+}
+
 //逆波兰式子运算 返回类型string   将子运算以string类型返回
 string get_result(std::string val1,std:: string val2, std::string op) {
 
@@ -199,49 +244,25 @@ string get_result(std::string val1,std:: string val2, std::string op) {
 	cout << "_node.up=" << _node.up << " " << "_node.down=" << _node.down << endl<<endl;
 	cout << "--以上是子运算结果--" << endl<<endl;
 
-	//针对 up > down 的情况
-	if (_node.up % _node.down) {  
-		int x = _node.up / _node.down;
+	//针对 up>down||up<down的情况
+	if (_node.up % _node.down&&_node.up>_node.down) {  
+		LL x = _node.up / _node.down;
 		_node.up -= x * _node.down;
-		char A[Width];
-
-		_itoa_s(x,A,10);
-		_revalue += A;
-		_revalue += '\'';
-
-		_itoa_s(_node.up, A, 10);
-		_revalue += A;
-		_revalue += '/';
-
-		_itoa_s(_node.down, A, 10);
-		_revalue += A;
+		_revalue += llTostr(x) + '\'' + llTostr(_node.up) + '/' + llTostr(_node.down);
 	}
-	//针对 up = down 
 	else if (_node.up / _node.down) {
-		char B[Width];
-
-		_itoa_s(_node.up, B, 10);
-		_revalue += B;
-
+		_revalue+=llTostr(_node.up);
 	}
-	//针对 up < down
-	else {
-		char C[Width];
-
-		_itoa_s(_node.up, C, 10);
-		_revalue += C;
-		_revalue += '/';
-
-		_itoa_s(_node.down, C, 10);
-		_revalue += C;
-
+	else{
+		_revalue += llTostr(_node.up) + '/' + llTostr(_node.down);
 	}
+	
 	return _revalue;
 }
 
 //运算逆波兰式 返回类型string
-string rpn(std::stack<string> _stk) {
-	std::stack<string> rs;
+string rpn(stack<string> _stk) {
+	stack<string> rs;
 	while (!_stk.empty()) {
 		if (is_operator(_stk.top())) {
 			std::string val1 = rs.top();
@@ -289,7 +310,7 @@ int main(int argc, char* argv[]) {
 	std::string str[3];
 	excfile.open(argv[1]);
 	ansfile.open(argv[2]);
-	grafile.open(argv[3],ios::app);
+	grafile.open(argv[3]);
 	if (!excfile.is_open() && !ansfile.is_open() &&!grafile.is_open()){
 		cout << "FILE ERROR!!" << endl;
 		system("pause");
@@ -310,9 +331,11 @@ int main(int argc, char* argv[]) {
 		input = getRidOf(input);
 		answer = getRidOf(answer);
 		//测试：：检查去除后的结果
-	/*	cout << input << endl;
+		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+		cout << "题号：  " << number << endl;
+		cout << input << endl;
 		cout << answer << endl;
-		cout << "--以上是题目和答案--" << endl;*/
+		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 
 		std::stack<string> _stk = transfrom(input);//转换逆波兰式
 
@@ -341,13 +364,13 @@ int main(int argc, char* argv[]) {
 		grafile << "Correct: 0" << endl;
 	}
 	else {
-		grafile << "Correct: " << _correct << "(";
+		grafile << "Correct: " << _correct << " (";
 		vector<int>::iterator iter;
 		iter = correct.begin();
 		grafile << *iter;
 		iter++;
 		for (; iter != correct.end(); iter++){
-			grafile << ",";
+			grafile << ", ";
 			grafile << *iter;
 		}
 		grafile << ")" << endl;
@@ -357,13 +380,13 @@ int main(int argc, char* argv[]) {
 		grafile << "Wrong: 0" << endl;
 	}
 	else {
-		grafile << "Wrong: " << _wrong << "(";
+		grafile << "Wrong: " << _wrong << " (";
 		vector<int>::iterator iter;
 		iter = wrong.begin();
 		grafile << *iter;
 		iter++;
 		for (; iter != wrong.end(); iter++) {
-			grafile << ",";
+			grafile << ", ";
 			grafile << *iter;
 		}
 		grafile << ")" << endl;
