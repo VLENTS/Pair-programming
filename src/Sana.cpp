@@ -1,19 +1,12 @@
-#include "main.h"
+#include "Sana.h"
 
 using namespace std;
 
-const int Width = 10;
-
-
-LL gcd(LL a, LL b) {
-	return b ? gcd(b, a % b) : a;
-}
-
-bool is_operator(std::string op) {
+bool is_operator(string op) {
 	return (op == "+" || op == "-" || op == "*" || op == "/" || op == "(" || op == ")");
 }
 
-int get_priority(std::string op) {
+int get_priority(string op) {
 	if (op == "+")
 		return 1;
 	else if (op == "-")
@@ -26,18 +19,16 @@ int get_priority(std::string op) {
 }
 
 //转换成逆波兰
-std::stack<string> transfrom(std::string input) {
-	std::stack<string> converted;
-	std::stack<string> op;
+stack<string> transfrom(string input) {
+	stack<string> converted;
+	stack<string> op;
 	int i = 0;
-	std::string digit_node = "";
-
-	//cout << "///transform: ///" << endl;
+	string digit_node = "";
 
 	while (i < input.length()) {
 
 		char c = input[i];
-		std::string read_char = "";
+		string read_char = "";
 		read_char += c;
 
 		//扩展识别 ×和÷
@@ -64,7 +55,7 @@ std::stack<string> transfrom(std::string input) {
 					}
 					op.pop();
 				}
-				else if (get_priority(read_char) > get_priority(op.top())) //比较优先级，优先级：'*','/' > '+','-' > ')','('
+				else if (get_priority(read_char) > get_priority(op.top())) //比较优先级，优先级(高-->低)：( "(",")" ),"+","-","×","÷"
 					op.push(read_char);
 				else if(get_priority(read_char) == get_priority(op.top())){
 					if (read_char == "-") {
@@ -95,15 +86,11 @@ std::stack<string> transfrom(std::string input) {
 				digit_node += input[j];				 //input[j]!='\0' --针对读取分数时最后一个分数，此时截止情况可能不是空，是'\0'。
 				j++;
 			}
-			////测试：：输出结果
-			//cout << digit_node << " ";
-			i = j;  //
+			i = j;  
 			if (input[i] != ')') i++;
 		}
 		
 	}
-	////测试：：输出结果
-	//cout << endl << "--以上是逆波过程中的输出--" << endl;
 
 	if (digit_node != "") { 
 		converted.push(digit_node);
@@ -118,13 +105,6 @@ std::stack<string> transfrom(std::string input) {
 		stk.push(converted.top());
 		converted.pop();
 	}
-	//测试：：输出结果
-	/*stack<string> _stk2=stk;
-	while (!_stk2.empty()) {
-		cout << _stk2.top() << endl;
-		_stk2.pop();
-	}
-	cout << "--以上是转换后的逆波式结果--" << endl << endl;*/
 
 	return stk;
 }
@@ -139,19 +119,19 @@ string getRidOf(string str) {
 	while (str[i] == ' ') {
 		i++;
 	}
-	std::string _str="";
+	string _str="";
 	for (; str[i] != '\0'; i++) {
 		_str += str[i];
 	}
 	return _str;
 }
 
-//将字符串转换成Node的类型，方便后续运算，返回值类型Node。
-Node transfer(std::string val) {
+//将字符串转换成Frac的类型，方便后续运算，返回值类型Frac。
+Frac transfer(string val) {
 	LL up = 0, down = 0,A=0;
 	int flag1 = -1, flag2 = -1; //分别用于记下 ' 和 / 的位置
 	int i = 0;
-	std::string label="000"; //我的分数情形有三种：A'B/C , B/C , C label三位值就代表着该位是否存在。
+	string label="000"; //我的分数情形有三种：A'B/C , B/C , C label三位值就代表着该位是否存在。
 	//分别用于记下 ' 和 / 的位置
 	while (i<val.length()) {
 		if (val[i] == '\'') 
@@ -160,47 +140,28 @@ Node transfer(std::string val) {
 			flag2 = i;
 		i++;
 	}
-
-	/*cout << "***********************" << endl;
-	cout << "val= " << val << " " << "flag1= " << flag1 << " " << "flag2= " << flag2 << endl;
-	cout << "***********************" << endl;*/
-
 	i = 0;
 	for (; i < val.length(); i++) {
 		if (flag1 != -1&&i<flag1) {
 			label[0] = 1;
 			A = A * 10 + (val[i] - '0');
-
-			//cout << "***************" << endl;
-			//cout << "A= " << A << endl;
-			//cout << "***************" << endl<<endl;
-
 		}
 		else if (flag2 != -1 && i > flag1 &&i < flag2) {
 			label[1] = 1;
 			up = up * 10 + (val[i] - '0');
-
-			//cout << "***************" << endl;
-			//cout << "up= "<< up << endl;
-			//cout << "***************" << endl << endl;;
 		}
 		else if(i>flag2){
 			label[2] = 1;
 			down = down * 10 + (val[i] - '0');
-
-		/*	cout << "***************" << endl;
-			cout << "down= "<<down << endl;
-			cout << "***************" << endl << endl;*/
-
 		}
 	}
 
 	if (flag1 == -1 && flag2 == -1) {
-		return Node(down, 1);
+		return Frac(down, 1);
 	}
 	else {
 		up = A * down + up;
-		return Node(up, down);
+		return Frac(up, down);
 	}
 }
 
@@ -224,25 +185,17 @@ string llTostr(LL num) {
 }
 
 //逆波兰式子运算 返回类型string   将子运算以string类型返回
-string get_result(std::string val1,std:: string val2, std::string op) {
+string get_result(string val1, string val2, string op) {
 
-	Node node1 = transfer(val1);
-	Node node2 = transfer(val2);
+	Frac node1 = transfer(val1);
+	Frac node2 = transfer(val2);
 
-	//测试：：测试结果
-	cout << "***   get_result:   ***" << endl << endl;;
-	cout << "node1.up= " << node1.up <<" "<< "node1.down= " << node1.down<<endl<<endl;
-	cout << "node2.up= " << node2.up <<" "<< "node2.down= " << node2.down << endl<<endl;
-
-	Node _node;
+	Frac _node;
 	string _revalue="";
 	if (op == "+") _node = node1 + node2;
 	else if (op == "-") _node = node1 - node2;
 	else if (op == "*") _node = node1 * node2;
 	else _node = node1 / node2;
-	//测试：：测试结果
-	cout << "_node.up=" << _node.up << " " << "_node.down=" << _node.down << endl<<endl;
-	cout << "--以上是子运算结果--" << endl<<endl;
 
 	//针对 up>down||up<down的情况
 	if (_node.up % _node.down&&_node.up>_node.down) {  
@@ -265,14 +218,12 @@ string rpn(stack<string> _stk) {
 	stack<string> rs;
 	while (!_stk.empty()) {
 		if (is_operator(_stk.top())) {
-			std::string val1 = rs.top();
+			string val1 = rs.top();
 			rs.pop();
-			std::string val2 = rs.top();
+			string val2 = rs.top();
 			rs.pop();
-			std::string op = _stk.top();
+			string op = _stk.top();
 			_stk.pop();
-			//测试：：测试结果
-			cout << val2 << " " << op << " " << val1<<endl;
 			rs.push(get_result(val2, val1, op)); //先出栈的是第二位运算数，所以传值要换个位置。
 		}
 		else {
@@ -284,41 +235,30 @@ string rpn(stack<string> _stk) {
 }
 
 //比较结果值
-bool Compare(std::string result, std::string refer) {
+bool Compare(string result, string refer) {
 
-	Node node1 = transfer(result);
-	Node node2 = transfer(refer);
-
-	//cout << "$$$$$$ COMPARE $$$$$$$" << endl;
-	//cout << "node1:  " << node1.up << " / " << node1.down<<endl;
-	//cout << "node2:  " << node2.up << " / " << node2.down<<endl;
-	//cout << "$$$$$$$$$$$$$$$$$$$$" << endl << endl;
+	Frac node1 = transfer(result);
+	Frac node2 = transfer(refer);
 
 	if((node2.up==node1.up)&&(node2.down==node1.down)){
 		return true;
 	}
-	
 	return false;
 }
 
 
-int main(int argc, char* argv[]) {
+void sana_test(string adr_exe,string adr_ans) {
 
 	//文件初始化以及检查
 	ifstream excfile, ansfile;
 	ofstream grafile;
-	std::string str[3];
-	excfile.open(argv[1]);
-	ansfile.open(argv[2]);
-	grafile.open(argv[3]);
-	if (!excfile.is_open() && !ansfile.is_open() &&!grafile.is_open()){
-		cout << "FILE ERROR!!" << endl;
-		system("pause");
-		return 0;
-	}
+	string str[3];
+	excfile.open(adr_exe);
+	ansfile.open(adr_ans);
+	grafile.open(".\\Grade.txt");
 
 	//input--用于读取excercisefile的运算式， answer--用于读取answerfile的答案
-	std::string input,answer;
+	string input,answer;
 	//number--记题号，_correct--记运算正确数，_wrong--记运算错误数
 	int number = 1,_correct=0,_wrong=0;
 	//容器用于装正确（错误）题号
@@ -330,21 +270,10 @@ int main(int argc, char* argv[]) {
 		//修改去除1.2.等等这样的标志，例： 1.（3+4）* 6 ---> （3+4）* 6
 		input = getRidOf(input);
 		answer = getRidOf(answer);
-		//测试：：检查去除后的结果
-		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-		cout << "题号：  " << number << endl;
-		cout << input << endl;
-		cout << answer << endl;
-		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 
-		std::stack<string> _stk = transfrom(input);//转换逆波兰式
-
+		stack<string> _stk = transfrom(input);//转换逆波兰式
 		//将转换成逆波兰式的式子进行运算，并将答案以string形式传回。
 		string _revalue = rpn(_stk);//算值
-		////测试：：查最终值
-		//cout << "运算结果得：" << endl;
-		//cout << _revalue << endl;
-		//cout << "--------------------------------" << endl;
 
 		//进行比较
 		if (Compare(_revalue, answer)) {
@@ -392,13 +321,7 @@ int main(int argc, char* argv[]) {
 		grafile << ")" << endl;
 	}
 
-	cout << "输入完成!" << endl;
-
-	if (excfile.is_open() && ansfile.is_open() && grafile.is_open()) {
-		excfile.close();
-		ansfile.close();
-		grafile.close();
-	}
-	system("pause");
-	return 0;
+	excfile.close();
+	ansfile.close();
+	grafile.close();
 }

@@ -1,5 +1,4 @@
 #include "Solve.h"
-#include "Frac.h"
 
 using namespace std;
 typedef long long LL;

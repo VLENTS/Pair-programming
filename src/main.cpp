@@ -1,6 +1,4 @@
 #include "main.h"
-#include "Frac.h"
-#include "Solve.h"
 
 using namespace std;
 typedef long long LL;
@@ -42,7 +40,7 @@ int main(int argc, char* argv[]) {
 		string exe = string(argv[2]), ans = string(argv[4]);
 		if (_access(exe.c_str(), 00) == -1 || _access(ans.c_str(), 00 == -1))
 			cout << "adress error!\n";
-		else run_test(exe, ans);
+		else sana_test(exe, ans);
 	}
 	else cout << "arg model error!\n";
 	

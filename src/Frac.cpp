@@ -47,5 +47,6 @@ bool Frac::operator == (const Frac& x) const {
 }
 
 size_t FracHash::operator() (const Frac& x) const {
-	return x.up * 1000000000 + x.down;
+	size_t seed = x.up + 0x9e3779b9;
+	return seed ^= x.down + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
