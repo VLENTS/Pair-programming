@@ -11,7 +11,7 @@
 
 #include "Frac.h"
 
-void run_gene(int t, int m);
+bool run_gene(int t, int m);
 
 void run_test(std::string adr_exe, std::string adr_ans);
 

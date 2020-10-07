@@ -67,18 +67,20 @@ bool solve(int s, int n) {
 }
 
 //碰撞上限
-const int limit = 10;
+const int limit_gene = 10;
 unordered_set<Frac, FracHash> used;
 
-//不考虑生成0
-//生成长度为n 生成数值x<=m
+//生成长度为n 生成数值x<m
 //如果答案碰撞次数超过上限则生成失败 返回 false
 bool gene(int n, int m) {
 	int cnt = 0;
-	while (cnt < limit) {
+	while (cnt < limit_gene) {
 		for (int i = 1; i <= n; i++) {
-			int a = rand() % m + 1;
-			int b = rand() % m + 1;
+			int b = rand() % m;
+			if (m > 1)
+				while (!b) b = rand() % m;
+			else b = 1;
+			int a = rand() % (b * m);
 			num[i] = _num[i] = Frac(a, b);
 			itvl[i] = itvr[i] = i;
 			if (i < n) {
@@ -112,23 +114,33 @@ int demical(int x) {
 	}
 	return max(1, cnt);
 }
+
+const int limit_run_gene = 10;
 //输出乘除号为utf-8编码
-void run_gene(int t, int m) {
+bool run_gene(int t, int m) {
 	used.clear();
 	ofstream ans, out;
 	ans.open(".\\Answers.txt");
 	out.open(".\\Exercises.txt");
 	//输出
+	int cnt;
 	for (int i = 1; i <= t; i++) {
+		cnt = 0;
 		int n = (rand() & 1) + 2;
 		while (!gene(n, m)) {
-			n = 3;
+			if (cnt >= limit_run_gene) {
+				ans.close();
+				out.close();
+				return false;
+			}
+			cnt++;
+			n = (rand() & 1) + 2;
 		}
 
 		out << i << ".";
 		ans << i << ".";
 
-		int cnt = demical(i) + 1;
+		cnt = demical(i) + 1;
 		while (cnt < 6) {
 			out << ' ';
 			ans << ' ';
@@ -177,6 +189,7 @@ void run_gene(int t, int m) {
 		}
 	}
 	ans.close(); out.close();
+	return true;
 }
 //假设不存在计算过程出现负数和/0的情况
 void test(int s) {
