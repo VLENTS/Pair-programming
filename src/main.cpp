@@ -7,6 +7,8 @@ const int limit_n = 100000;
 const int limit_r = 1000;
 
 int main(int argc, char* argv[]) {
+	clock_t st, en;
+	st = clock();
 	srand(time(0));
 	if (argc != 5) {
 		cout << "argc error!\n"
@@ -58,5 +60,7 @@ int main(int argc, char* argv[]) {
 			<< "1. project.exe -n (0,100000] -r (0,1000]\n"
 			<< "2. project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
 	}
+	en = clock();
+	printf("Running Time: %.3f\n", (double)(en - st) / CLOCKS_PER_SEC);
 	return 0;
 }

@@ -115,7 +115,7 @@ int demical(int x) {
 	return max(1, cnt);
 }
 
-const int limit_run_gene = 10;
+const int limit_run_gene = 10000;
 //Êä³ö³Ë³ıºÅÎªutf-8±àÂë
 bool run_gene(int t, int m) {
 	used.clear();
