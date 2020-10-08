@@ -126,7 +126,7 @@ bool run_gene(int t, int m) {
 	int cnt;
 	for (int i = 1; i <= t; i++) {
 		cnt = 0;
-		int n = (rand() & 1) + 2;
+		int n = (rand() % 3) + 2;
 		while (!gene(n, m)) {
 			if (cnt >= limit_run_gene) {
 				ans.close();
