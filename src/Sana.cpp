@@ -36,7 +36,7 @@ stack<string> transfrom(string input) {
 			if (input[++i] == (char)0x97) read_char = "*";
 			else read_char = "/";
 		}
-		if (is_operator(read_char)) {  //is_operator()用于检查符号是否为 '+', '-', '*', '/'
+		if (is_operator(read_char)) {  //is_operator()用于检查符号是否为 '+', '-', '*', '/','(',')'
 			if (digit_node != "") { //每次判别有符号要入栈时，都把之前所积累的运算数压入栈。
 				converted.push(digit_node);
 				digit_node = "";
@@ -73,8 +73,21 @@ stack<string> transfrom(string input) {
 					}
 				}
 				else {
-					converted.push(op.top());
-					op.pop();
+					while (!op.empty()&& (get_priority(op.top()) > get_priority(read_char)|| get_priority(op.top()) == get_priority(read_char))) {
+						if ((get_priority(op.top()) > get_priority(read_char))) {
+							converted.push(op.top());
+								op.pop();
+						}
+						else if (get_priority(op.top()) == get_priority(read_char)) {
+							if (read_char == "-"|| read_char == "/") {
+								converted.push(op.top());
+								op.pop();
+							}
+							else {
+								break;
+							}
+						}
+					}
 					op.push(read_char);
 				}
 			}
@@ -285,7 +298,6 @@ void sana_test(string adr_exe,string adr_ans) {
 			wrong.push_back(number);
 		}
 		number++;
-
 	}
 
 	//将校正结果写入文件

@@ -5,12 +5,11 @@ typedef long long LL;
 
 const int MAX = 1e5;
 
-int is_brack;
 Frac num[MAX + 5], _num[MAX + 5];
 int sign[MAX + 5], _sign[MAX + 5], brack[MAX + 5][2], nex[MAX + 5];
 int itvl[MAX + 5], itvr[MAX + 5];
 //当前起始节点为s 往下走n步为终止结点
-bool solve(int s, int n) {
+bool solve(int s, int n, bool is_brack) {
 	while (n > 1 && is_brack) {
 		int l = rand() % n;
 		int r = rand() % n + 1;
@@ -22,7 +21,7 @@ bool solve(int s, int n) {
 		brack[itvl[_l]][0]++;
 		brack[itvr[_r]][1]++;
 		n -= r - l;
-		if (!solve(_l, r - l)) return false;
+		if (!solve(_l, r - l, rand() & 1)) return false;
 		itvr[_l] = itvr[_r];
 	}
 	int temp;
@@ -41,23 +40,22 @@ bool solve(int s, int n) {
 			n--;
 		}
 	}
-	//
-	temp = s;
-	for (int i = 0; i < n; i++, temp = nex[temp]) 
-		if (sign[temp] == '-') {
-			Frac x = num[temp] - num[nex[temp]];
-			if (x.up < 0 || x.down < 0) return false;
-		}
-	//
+	
 	temp = s;
 	for (int i = 0; i < n; i++, temp = nex[temp]) {
-		while (i < n && (sign[temp] == '+' || sign[temp] == '-')) {
-			if (sign[temp] == '+')
-				num[temp] = num[temp] + num[nex[temp]];
-			if (sign[temp] == '-') {
-				num[temp] = num[temp] - num[nex[temp]];
-				if (num[temp].up < 0 || num[temp].down < 0) return false;
-			}
+		while (i < n && sign[temp] == '-') {
+			num[temp] = num[temp] - num[nex[temp]];
+			if (num[temp].up < 0 || num[temp].down < 0) return false;
+			sign[temp] = sign[nex[temp]];
+			nex[temp] = nex[nex[temp]];
+			n--;
+		}
+	}
+
+	temp = s;
+	for (int i = 0; i < n; i++, temp = nex[temp]) {
+		while (i < n) {
+			num[temp] = num[temp] + num[nex[temp]];
 			sign[temp] = sign[nex[temp]];
 			nex[temp] = nex[nex[temp]];
 			n--;
@@ -96,8 +94,7 @@ bool gene(int n, int m) {
 		}
 		for (int i = 1; i <= n; i++)
 			brack[i][0] = brack[i][1] = 0;
-		is_brack = rand() & 1;
-		if (solve(1, n - 1) && used.find(num[1]) == used.end()) {
+		if (solve(1, n - 1, rand() & 1) && used.find(num[1]) == used.end()) {
 			used.insert(num[1]); return true;
 		}
 		cnt++;
@@ -118,6 +115,7 @@ int demical(int x) {
 const int limit_run_gene = 10000;
 //输出乘除号为utf-8编码
 bool run_gene(int t, int m) {
+	srand(time(0));
 	used.clear();
 	ofstream ans, out;
 	ans.open(".\\Answers.txt");
@@ -126,7 +124,12 @@ bool run_gene(int t, int m) {
 	int cnt;
 	for (int i = 1; i <= t; i++) {
 		cnt = 0;
-		int n = (rand() % 3) + 2;
+		int n;
+
+		if (m > 1000) n = 2;
+		else if (m > 100) n = (rand() & 1) + 2;
+		else n = rand() % 3 + 2;
+
 		while (!gene(n, m)) {
 			if (cnt >= limit_run_gene) {
 				ans.close();
@@ -134,7 +137,10 @@ bool run_gene(int t, int m) {
 				return false;
 			}
 			cnt++;
-			n = (rand() & 1) + 2;
+
+			if (m > 1000) n = 2;
+			else if (m > 100) n = (rand() & 1) + 2;
+			else n = rand() % 3 + 2;
 		}
 
 		out << i << ".";
@@ -244,6 +250,7 @@ void run_test(string adr_exe, string adr_ans) {
 	ans.open(adr_ans);
 	out.open(".\\Grade.txt");
 	string temp;
+	correct.clear(); wrong.clear();
 	while (getline(exe,temp)) {
 		int k = 0, s = 0, cnt = 1;
 		while ('0' <= temp[k] && temp[k] <= '9') {
@@ -252,6 +259,7 @@ void run_test(string adr_exe, string adr_ans) {
 		}
 		while (true) {
 			while ((temp[k] < '0' || temp[k] > '9') && temp[k] != '(') k++;
+			brack[cnt][0] = 0;
 			while (temp[k] == '(') {
 				brack[cnt][0]++;
 				k++;
@@ -288,6 +296,7 @@ void run_test(string adr_exe, string adr_ans) {
 			}
 			else down = 1;
 			num[cnt] = Frac(up, down);
+			brack[cnt][1] = 0;
 			while (temp[k] == ')') {
 				brack[cnt][1]++;
 				k++;
@@ -344,8 +353,7 @@ void run_test(string adr_exe, string adr_ans) {
 				
 		}
 		else down = 1;
-		if (!(num[1] == Frac(up, down)))
-			wrong.push_back(s);
+		if (!(num[1] == Frac(up, down))) wrong.push_back(s);
 		else correct.push_back(s);
 	}
 

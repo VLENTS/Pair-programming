@@ -4,16 +4,15 @@ using namespace std;
 typedef long long LL;
 
 const int limit_n = 100000;
-const int limit_r = 1000;
+const int limit_r = 10000;
 
 int main(int argc, char* argv[]) {
 	clock_t st, en;
 	st = clock();
-	srand(time(0));
 	if (argc != 5) {
 		cout << "argc error!\n"
 			<< "correct arguments mode:\n"
-			<< "1. project.exe -n (0,100000] -r (0,1000]\n"
+			<< "1. project.exe -n (0,100000] -r (0,10000]\n"
 			<< "2. project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
 	}
 	else if (argv[1][1] == 'n' && argv[3][1] == 'r') {
@@ -35,7 +34,7 @@ int main(int argc, char* argv[]) {
 			b = b * 10 + argv[4][i] - '0'; i++;
 		}
 		if (b > limit_r || b <= 0) {
-			cout << "argument number after \"-r\" should between 1 and 1000.\n";
+			cout << "argument number after \"-r\" should between 1 and 10000.\n";
 			return 0;
 		}
 		if (argv[4][i]) {
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]) {
 	else {
 		cout << "mode error!\n"
 			<< "correct arguments mode:\n"
-			<< "1. project.exe -n (0,100000] -r (0,1000]\n"
+			<< "1. project.exe -n (0,100000] -r (0,10000]\n"
 			<< "2. project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
 	}
 	en = clock();

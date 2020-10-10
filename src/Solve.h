@@ -1,6 +1,7 @@
 #ifndef SOLVE_H
 #define SOLVE_H
 
+#include <ctime>
 #include <string>
 #include <cstdlib>
 #include <iomanip>

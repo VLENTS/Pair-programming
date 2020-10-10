@@ -2,7 +2,6 @@
 #define MAIN_H
 
 #include <io.h>
-#include <ctime>
 #include <string>
 #include <iostream>
 
