@@ -12,8 +12,8 @@ int main(int argc, char* argv[]) {
 	if (argc != 5) {
 		cout << "argc error!\n"
 			<< "correct arguments mode:\n"
-			<< "1. project.exe -n (0,100000] -r (0,10000]\n"
-			<< "2. project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
+			<< "1. Project.exe -n (0,100000] -r (0,10000]\n"
+			<< "2. Project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
 	}
 	else if (argv[1][1] == 'n' && argv[3][1] == 'r') {
 		int a = 0, b = 0, i;
@@ -56,10 +56,10 @@ int main(int argc, char* argv[]) {
 	else {
 		cout << "mode error!\n"
 			<< "correct arguments mode:\n"
-			<< "1. project.exe -n (0,100000] -r (0,10000]\n"
-			<< "2. project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
+			<< "1. Project.exe -n (0,100000] -r (0,10000]\n"
+			<< "2. Project.exe -e <exercisefile>.txt -a <answerfile>.txt\n";
 	}
 	en = clock();
-	printf("Running Time: %.3f\n", (double)(en - st) / CLOCKS_PER_SEC);
+	printf("Running Time: %.3fs\n", (double)(en - st) / CLOCKS_PER_SEC);
 	return 0;
 }
