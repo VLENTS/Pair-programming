@@ -23,6 +23,7 @@ bool solve(int s, int n, bool is_brack) {
 		n -= r - l;
 		if (!solve(_l, r - l, rand() & 1)) return false;
 		itvr[_l] = itvr[_r];
+		is_brack = rand() & 1;
 	}
 	int temp;
 
