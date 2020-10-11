@@ -297,6 +297,7 @@ void run_test(string adr_exe, string adr_ans) {
 			}
 			else down = 1;
 			num[cnt] = Frac(up, down);
+			while (temp[k] == ' ') k++;
 			brack[cnt][1] = 0;
 			while (temp[k] == ')') {
 				brack[cnt][1]++;
